@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Document</title>
+  <style>
+    #container{
+      width: 100%;
+      display: flex;
+      flex-flow: row wrap;
+      align-content: stretch;
+      background: yellow;
+    }
+    .item{
+      flex-grow: 1;
+      /*border: 1px solid green;*/
+      /*background: green;*/
+    }
+    #handler{
+      height: 200px;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      margin: 10px;
+    }
+    #handler>div{
+      width: 200px;
+      display: flex;
+      background: blue;
+      margin: 10px;
+    }
+    #handler>div#horizontal{
+      flex-flow: row nowrap;
+      justify-content: space-between;
+    }
+    #handler>div#vertical{
+      flex-flow: column nowrap;
+      align-content: space-between;
+    }
+    #handler>div>button{
+      flex: 1 0 auto;
+      margin: 5px;
+      background: green;
+    }
+    #handler>div>button#left,
+    #handler>div>button#up{
+      item: 0;
+    }
+    #handler>div>button#right,
+    #handler>div>button#down{
+      item: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="handler">
+    <div id="horizontal">
+      <button id="left">&nbsp;LEFT&nbsp;</button>
+      <button id="right">RIGHT</button>
+    </div>
+    <div id="vertical">
+      <button id="up">UP</button>
+      <button id="down">DOWN</button>
+    </div>
+  </div>
+  <script>
+  window.onload = function () {
+    /**
+    *初始化游戏
+    */
+    //初始化面板
+    var cont = document.getElementById('container');
+    var contWidth = cont.offsetWidth;
+    cont.style.height = contWidth+'px';
+    for (var i = 1; i < 50*50+1; i++) {
+      var item = document.createElement('div');
+      item.className = 'item';
+      item.id = 'dot'+i.toString();
+      item.style.order = i.toString();
+      item.style.height = (parseInt(contWidth)/50)+'px';
+      item.style.width = (parseInt(contWidth)/50)+'px';
+      cont.appendChild(item);
+    };
+    //初始化按键
+    
+
+    //初始化蛇
+    var snake = {
+      //方向默认向右
+      direct: 'right',
+      //初始化蛇身
+      body: (function () {
+        var head = document.getElementById('dot1271');
+        head.style.backgroundColor = 'red';
+        var b = document.getElementById('dot1270');
+        b.style.backgroundColor = 'red';
+        var foot = document.getElementById('dot1269');
+        foot.style.backgroundColor = 'red';
+        return [head,b,foot];
+      }()),
+      //每移动一步
+      render: function () {
+        //寻找蛇头
+        var newHeadId;
+        var regexp = /dot*/;
+        var oldHeadIdNum = parseInt(snake.body[0].id.replace(regexp,''));
+        switch(snake.direct) {
+          case 'right': 
+            newHeadId = 'dot' + (oldHeadIdNum+1).toString();
+            break;
+          case 'left':
+            newHeadId = 'dot' + (oldHeadIdNum-1).toString();
+            break;
+          case 'up':
+            newHeadId = 'dot' + (oldHeadIdNum-50).toString();
+            break;
+          case 'down':
+            newHeadId = 'dot' + (oldHeadIdNum+50).toString();
+            break;
+        }
+        //判断是否撞墙
+        var res = snake.nextStepJudge(newHeadId);
+        if(res === 'normal'){
+          //增加蛇头
+          var newHead = document.getElementById(newHeadId);
+          newHead.style.backgroundColor = 'red';
+          snake.body.unshift(newHead);
+          //去掉蛇尾
+          snake.body[snake.body.length-1].style.backgroundColor = '';
+          snake.body.pop(snake.body.length-1);
+        }else if(res === 'eat'){
+          //增加蛇头
+          var newHead = document.getElementById(newHeadId);
+          newHead.style.backgroundColor = 'red';
+          snake.body.unshift(newHead);
+          //不去蛇尾，增加食物
+          food.create();
+        }else if(res === 'dead'){
+          //游戏结束
+          clearInterval(start);
+        }
+        
+      },
+      //判断下一步的三种状态（正常normal，吃到eat，撞上dead）
+      nextStepJudge: function (dotId) {
+        //eat
+        if(dotId === food.dot.id){
+          return 'eat';
+        }
+
+        //撞着自己
+        var flagSelf = false;
+        for (var i = 0; i < snake.body.length; i++) {
+          if(snake.body[i].id === dotId){
+            flagSelf = true;
+            break;
+          }
+        };
+        if(flagSelf){
+          return 'dead';
+        }
+
+        var regexp = /dot*/;
+        var num = parseInt(dotId.replace(regexp,''));
+        //撞上下墙
+        if((snake.direct === 'up')||(snake.direct === 'down')){
+          // var flag = false;
+          // for(var i=0; i<cont.childNodes.length; i++){
+          //   if(cont.childNodes[i].id === dotId){
+          //     flag = true;
+          //     break;
+          //   }
+          // }
+          // if(!flag){
+          //   return 
+          // }
+          
+          if((num>2500)||(num<1)){
+            return 'dead';
+          }
+        }
+        //撞左墙
+        else if(snake.direct === 'left'){
+          for (var i = 50; i <= 2500; i+=50) {
+            if(num === i){
+              return 'dead';
+            }
+          }
+        }
+        //撞右墙
+        else if(snake.direct === 'right'){
+          for (var i = 1; i <= 2451; i+=50) {
+            if(num === i){
+              return 'dead';
+            }
+          }
+        }
+
+        //正常
+        return 'normal';
+      }
+    };
+    //生成食品
+    var food = {
+      dot: null,
+      create: (function f() {
+        var dotId = 'dot'+parseInt(Math.random()*2500).toString();
+        var flag = false;
+        for (var i = 0; i < snake.body.length; i++) {
+          if(snake.body[i].id === dotId){
+            flag = true;
+            break;
+          }
+        }
+        if(flag){
+          f();
+        }else{
+          var dot = document.getElementById(dotId);
+          dot.style.backgroundColor = 'violet';
+          food.dot = dot;
+        }
+      })
+    };
+
+    //按键功能
+    var handler = document.getElementById('handler');
+    handler.addEventListener('click', function (e) {
+      var btnId = e.target.id;
+      switch(btnId) {
+        case 'left':
+          if((snake.direct === 'up')||(snake.direct === 'down')){
+            snake.direct = 'left';
+          }
+          break;
+        case 'right':
+          if((snake.direct === 'up')||(snake.direct === 'down')){
+            snake.direct = 'right';
+          }
+          break;
+        case 'up':
+          if((snake.direct === 'left')||(snake.direct === 'right')){
+            snake.direct = 'up';
+          }
+          break;
+        case 'down':
+          if((snake.direct === 'left')||(snake.direct === 'right')){
+            snake.direct = 'down';
+          }
+          break;
+      }
+    }, false);
+    
+    food.create();
+    var start = setInterval(snake.render, 500);  
+    
+  }
+  </script>
+</body>
+</html>
