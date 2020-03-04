@@ -13,7 +13,7 @@
         display: grid;
         grid-template-columns: repeat(50, 2%);
         grid-template-rows: repeat(50, 2%);
-        background: yellow;
+        background: grey;
       }
       #handler {
         height: 200px;
@@ -25,7 +25,7 @@
       #handler > div {
         width: 200px;
         display: flex;
-        background: blue;
+        background: yellowgreen;
         margin: 10px;
       }
       #handler > div#horizontal {
@@ -39,7 +39,8 @@
       #handler > div > button {
         flex: 1 0 auto;
         margin: 5px;
-        background: green;
+        background: orange;
+        color: aliceblue;
         text-align: center;
       }
       #handler > div > button#left,
@@ -89,11 +90,11 @@
         const snake = {
           init() {
             const head = document.getElementById("dot1271");
-            head.style.backgroundColor = "red";
+            head.style.backgroundColor = "black";
             const b = document.getElementById("dot1270");
-            b.style.backgroundColor = "red";
+            b.style.backgroundColor = "black";
             const foot = document.getElementById("dot1269");
-            foot.style.backgroundColor = "red";
+            foot.style.backgroundColor = "black";
             this.body.splice(0, 0, head, b, foot);
           },
           //方向默认向右
@@ -124,7 +125,7 @@
             if (res === "normal") {
               //增加蛇头
               const newHead = document.getElementById(newHeadId);
-              newHead.style.backgroundColor = "red";
+              newHead.style.backgroundColor = "black";
               this.body.unshift(newHead);
               //去掉蛇尾
               this.body[this.body.length - 1].style.backgroundColor = "";
@@ -132,7 +133,7 @@
             } else if (res === "eat") {
               //增加蛇头
               const newHead = document.getElementById(newHeadId);
-              newHead.style.backgroundColor = "red";
+              newHead.style.backgroundColor = "black";
               this.body.unshift(newHead);
               //不去蛇尾，增加食物
               food.create();
@@ -209,7 +210,7 @@
               this.create();
             } else {
               const dot = document.getElementById(dotId);
-              dot.style.backgroundColor = "violet";
+              dot.style.backgroundColor = "black";
               this.dot = dot;
             }
           }
