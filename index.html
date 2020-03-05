@@ -8,6 +8,17 @@
     />
     <title>Document</title>
     <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      #wrap {
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px;
+        box-sizing: border-box;
+      }
       #container {
         width: 100%;
         display: grid;
@@ -54,15 +65,17 @@
     </style>
   </head>
   <body>
-    <div id="container"></div>
-    <div id="handler">
-      <div id="horizontal">
-        <button id="left">&nbsp;LEFT&nbsp;</button>
-        <button id="right">RIGHT</button>
-      </div>
-      <div id="vertical">
-        <button id="up">UP</button>
-        <button id="down">DOWN</button>
+    <div id="wrap">
+      <div id="container"></div>
+      <div id="handler">
+        <div id="horizontal">
+          <button id="left">&nbsp;LEFT&nbsp;</button>
+          <button id="right">RIGHT</button>
+        </div>
+        <div id="vertical">
+          <button id="up">UP</button>
+          <button id="down">DOWN</button>
+        </div>
       </div>
     </div>
     <script>
@@ -70,12 +83,28 @@
         /**
          *初始化游戏
          */
+        //初始化界面大小
+        function calcuWrap() {
+          const wrap = document.getElementById("wrap");
+          const viewportWidth = document.documentElement.clientWidth;
+          const viewportHeight = document.documentElement.clientHeight;
+          if (viewportHeight / viewportWidth > 1.331) {
+            wrap.style.width = "100%";
+            delete wrap.style.height;
+          } else {
+            wrap.style.height = "100%";
+            wrap.style.width = `${wrap.clientHeight / 1.331}px`;
+          }
+        }
+        calcuWrap();
+
         //初始化面板
         const cont = document.getElementById("container");
         cont.style.height = cont.offsetWidth + "px";
         window.addEventListener(
           "resize",
           function() {
+            calcuWrap();
             cont.style.height = cont.offsetWidth + "px";
           },
           false
@@ -140,7 +169,9 @@
             } else if (res === "dead") {
               //游戏结束
               clearInterval(start);
-              const restart = window.confirm("游戏结束，是否重新开始？");
+              const restart = window.confirm(
+                `游戏结束，您吃了${snake.body.length - 3}个食物，是否重新开始？`
+              );
               if (restart) {
                 window.location.reload();
               }
